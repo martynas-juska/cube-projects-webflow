@@ -158,10 +158,20 @@ function resizeRenderer() {
   camera.aspect = width / height
   camera.updateProjectionMatrix()
 
-  const base = Math.min(width, height)
-  const scaleFactor = (base / 300) * 0.8  // you can adjust the 0.8 to 0.9 for fuller fit
+  // --- dynamic FOV-based scale ---
+  const fovInRad = (camera.fov * Math.PI) / 180
+  const viewHeight = 2 * Math.tan(fovInRad / 2) * camera.position.z
+  const viewWidth = viewHeight * camera.aspect
+
+  // Cube fills ~75% of visible space (no overflow)
+  const scaleFactor = Math.min(viewWidth, viewHeight) * 0.35
   cubeGroup.scale.setScalar(scaleFactor)
+
+  cubeGroup.position.y = 0.2  // small nudge to keep visually centered
 }
+
+
+
 window.addEventListener('resize', resizeRenderer)
 resizeRenderer()
 
