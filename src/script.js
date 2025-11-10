@@ -159,7 +159,7 @@ function resizeRenderer() {
   camera.updateProjectionMatrix()
 
   const base = Math.min(width, height)
-  const scaleFactor = (base / 300) * 1.2  // you can adjust the 0.8 to 0.9 for fuller fit
+  const scaleFactor = (base / 300) * 1.1  // you can adjust the 0.8 to 0.9 for fuller fit
   cubeGroup.scale.setScalar(scaleFactor)
 }
 window.addEventListener('resize', resizeRenderer)
