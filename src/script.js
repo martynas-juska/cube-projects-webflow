@@ -9,14 +9,15 @@ let canvas = container.querySelector('canvas.webgl')
 if (!canvas) {
   canvas = document.createElement('canvas')
   canvas.classList.add('webgl')
-  document.body.appendChild(canvas)
+  container.appendChild(canvas)
 }
 
 /**
  * Scene setup
  */
 const scene = new THREE.Scene()
-scene.background = new THREE.Color('#0a1628')
+// ✅ transparent background (no color)
+scene.background = null
 
 /**
  * Renderer setup
@@ -24,9 +25,10 @@ scene.background = new THREE.Color('#0a1628')
 const renderer = new THREE.WebGLRenderer({
   canvas,
   antialias: true,
+  alpha: true, // ✅ allow transparency
   precision: 'highp',
-  logarithmicDepthBuffer: true,
-  powerPreference: 'high-performance'
+  powerPreference: 'high-performance',
+  logarithmicDepthBuffer: true
 })
 renderer.outputColorSpace = THREE.SRGBColorSpace
 renderer.toneMapping = THREE.ACESFilmicToneMapping
@@ -34,7 +36,7 @@ renderer.toneMappingExposure = 1.8
 renderer.physicallyCorrectLights = true
 renderer.shadowMap.enabled = true
 renderer.shadowMap.type = THREE.PCFSoftShadowMap
-renderer.setClearColor('#0a1628', 1.0)
+renderer.setClearColor(0x000000, 0) // ✅ transparent background
 
 /**
  * Camera
@@ -153,14 +155,19 @@ cubeGroup.rotation.x = -0.25
 cubeGroup.rotation.z = 0.15
 
 /**
- * Resize — works both in Webflow & local
+ * ✅ Responsive resize — adapts to Webflow div
  */
 function resizeRenderer() {
   const width = container.clientWidth || window.innerWidth
   const height = container.clientHeight || window.innerHeight
+
+  renderer.setSize(width, height, false)
   camera.aspect = width / height
   camera.updateProjectionMatrix()
-  renderer.setSize(width, height, false)
+
+  // ✅ scale cube to container size
+  const scaleFactor = Math.min(width, height) / 400
+  cubeGroup.scale.setScalar(scaleFactor)
 }
 window.addEventListener('resize', resizeRenderer)
 resizeRenderer()
@@ -172,7 +179,6 @@ const clock = new THREE.Clock()
 let animationId
 let isVisible = true
 
-// IntersectionObserver to detect visibility
 if ('IntersectionObserver' in window) {
   const observer = new IntersectionObserver((entries) => {
     isVisible = entries[0].isIntersecting
