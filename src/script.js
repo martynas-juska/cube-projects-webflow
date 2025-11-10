@@ -158,8 +158,8 @@ function resizeRenderer() {
   camera.aspect = width / height
   camera.updateProjectionMatrix()
 
-  // scale cube to fill roughly 70% of container size
-  const scaleFactor = Math.min(width, height) * 0.0017 // tweak multiplier
+  const base = Math.min(width, height)
+  const scaleFactor = (base / 300) * 0.8  // you can adjust the 0.8 to 0.9 for fuller fit
   cubeGroup.scale.setScalar(scaleFactor)
 }
 window.addEventListener('resize', resizeRenderer)
