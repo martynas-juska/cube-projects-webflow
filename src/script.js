@@ -16,8 +16,7 @@ if (!canvas) {
  * Scene setup
  */
 const scene = new THREE.Scene()
-// ✅ transparent background (no color)
-scene.background = null
+scene.background = null // ✅ transparent background
 
 /**
  * Renderer setup
@@ -25,7 +24,7 @@ scene.background = null
 const renderer = new THREE.WebGLRenderer({
   canvas,
   antialias: true,
-  alpha: true, // ✅ allow transparency
+  alpha: true,
   precision: 'highp',
   powerPreference: 'high-performance',
   logarithmicDepthBuffer: true
@@ -36,7 +35,7 @@ renderer.toneMappingExposure = 1.8
 renderer.physicallyCorrectLights = true
 renderer.shadowMap.enabled = true
 renderer.shadowMap.type = THREE.PCFSoftShadowMap
-renderer.setClearColor(0x000000, 0) // ✅ transparent background
+renderer.setClearColor(0x000000, 0)
 
 /**
  * Camera
@@ -46,7 +45,7 @@ camera.position.set(5, 3.5, 6)
 scene.add(camera)
 
 /**
- * Controls — locked cinematic
+ * Controls
  */
 const controls = new OrbitControls(camera, canvas)
 controls.enableDamping = true
@@ -57,30 +56,24 @@ controls.maxPolarAngle = Math.PI / 3.5
 controls.target.set(0, 1, 0)
 
 /**
- * Lighting setup
+ * Lighting
  */
 scene.add(new THREE.AmbientLight(0x3d5a7a, 0.4))
-
 const keyLight = new THREE.DirectionalLight(0xffeaa7, 2.2)
 keyLight.position.set(5, 6, 4)
 scene.add(keyLight)
-
 const fillLight = new THREE.DirectionalLight(0x74b9ff, 1.5)
 fillLight.position.set(-6, 3, 3)
 scene.add(fillLight)
-
 const rimLight = new THREE.SpotLight(0x60a5fa, 3.8, 15, Math.PI / 4, 0.3)
 rimLight.position.set(-3, 4, -5)
 scene.add(rimLight)
-
 const accentLight = new THREE.PointLight(0xffa726, 2.4, 10)
 accentLight.position.set(4, 2, 3)
 scene.add(accentLight)
-
 const topLight = new THREE.PointLight(0xdfe6e9, 1.2, 12)
 topLight.position.set(0, 8, 0)
 scene.add(topLight)
-
 const movingLight = new THREE.PointLight(0x60a5fa, 1.8, 12)
 movingLight.position.set(3, 3, 0)
 scene.add(movingLight)
@@ -101,7 +94,7 @@ envMesh.geometry.dispose()
 envMesh.material.dispose()
 
 /**
- * Material — realistic steel
+ * Material
  */
 const steelMat = new THREE.MeshStandardMaterial({
   color: 0xbababa,
@@ -155,7 +148,7 @@ cubeGroup.rotation.x = -0.25
 cubeGroup.rotation.z = 0.15
 
 /**
- * ✅ Responsive resize — adapts to Webflow div
+ * ✅ Responsive resize — fills ~70% of div
  */
 function resizeRenderer() {
   const width = container.clientWidth || window.innerWidth
@@ -165,8 +158,8 @@ function resizeRenderer() {
   camera.aspect = width / height
   camera.updateProjectionMatrix()
 
-  // ✅ scale cube to container size
-  const scaleFactor = Math.min(width, height) / 400
+  // scale cube to fill roughly 70% of container size
+  const scaleFactor = Math.min(width, height) * 0.0017 // tweak multiplier
   cubeGroup.scale.setScalar(scaleFactor)
 }
 window.addEventListener('resize', resizeRenderer)
@@ -211,7 +204,7 @@ function animate() {
 animate()
 
 /**
- * Cleanup on unload
+ * Cleanup
  */
 window.addEventListener('beforeunload', () => {
   cancelAnimationFrame(animationId)
