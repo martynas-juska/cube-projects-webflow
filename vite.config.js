@@ -1,19 +1,25 @@
-import { defineConfig } from 'vite'
 import restart from 'vite-plugin-restart'
 
-export default defineConfig({
-  root: 'src', // your HTML entry point
-  publicDir: '../public', // optional static files folder
+export default {
+  root: 'src/',
+  publicDir: '../static/',
   server: {
     host: true,
-    open: true,
+    open: !('SANDBOX_URL' in process.env || 'CODESANDBOX_HOST' in process.env)
   },
   build: {
     outDir: '../dist',
     emptyOutDir: true,
-    sourcemap: true,
+    sourcemap: false, // no need for .map files on Webflow
+    rollupOptions: {
+      output: {
+        entryFileNames: 'bundle.js',
+        chunkFileNames: 'bundle.js',
+        assetFileNames: '[name][extname]'
+      }
+    }
   },
   plugins: [
-    restart({ restart: ['../public/**'] })
-  ],
-})
+    restart({ restart: ['../static/**'] })
+  ]
+}
