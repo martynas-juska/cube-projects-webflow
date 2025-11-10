@@ -1,21 +1,21 @@
 import restart from 'vite-plugin-restart'
 
 export default {
-  root: 'src/', // where index.html lives
-  publicDir: '../static/', // optional static folder
+  root: 'src/', // your index.html lives here
+  publicDir: '../static/',
   server: {
-    host: true, // allow LAN access for local testing
+    host: true,
     open: !('SANDBOX_URL' in process.env || 'CODESANDBOX_HOST' in process.env)
   },
   build: {
-    outDir: '../dist', // production build output
+    outDir: '../dist',
     emptyOutDir: true,
-    sourcemap: false, // no need for Webflow
+    sourcemap: false,
     rollupOptions: {
       output: {
-        entryFileNames: 'assets/bundle.js',   // ✅ keeps file in /assets/
-        chunkFileNames: 'assets/[name].js',   // ✅ avoids overwriting
-        assetFileNames: 'assets/[name][extname]' // ✅ cleaner asset path
+        entryFileNames: 'bundle.js',   // ✅ direct in dist/
+        chunkFileNames: '[name].js',   // ✅ clean naming
+        assetFileNames: '[name][extname]'
       }
     }
   },
