@@ -16,7 +16,7 @@ if (!canvas) {
  * Scene setup
  */
 const scene = new THREE.Scene()
-scene.background = null // ✅ transparent background
+scene.background = null // transparent background
 
 /**
  * Renderer setup
@@ -39,9 +39,11 @@ renderer.setClearColor(0x000000, 0)
 
 /**
  * Camera
+ * - leveled horizontally (no top-down angle)
+ * - pulled back to avoid clipping
  */
-const camera = new THREE.PerspectiveCamera(60, 1, 0.3, 30)
-camera.position.set(5, 3.5, 6)
+const camera = new THREE.PerspectiveCamera(55, 1, 0.3, 50)
+camera.position.set(5, 1.6, 8) // moved lower & further back
 scene.add(camera)
 
 /**
@@ -51,27 +53,27 @@ const controls = new OrbitControls(camera, canvas)
 controls.enableDamping = true
 controls.enableZoom = false
 controls.enablePan = false
-controls.minPolarAngle = Math.PI / 3.5
-controls.maxPolarAngle = Math.PI / 3.5
-controls.target.set(0, 1, 0)
+controls.minPolarAngle = Math.PI / 2.3
+controls.maxPolarAngle = Math.PI / 2.3
+controls.target.set(0, 0.6, 0) // slightly below cube center
 
 /**
  * Lighting
  */
 scene.add(new THREE.AmbientLight(0x3d5a7a, 0.4))
-const keyLight = new THREE.DirectionalLight(0xffeaa7, 2.2)
+const keyLight = new THREE.DirectionalLight(0xffeaa7, 1.8)
 keyLight.position.set(5, 6, 4)
 scene.add(keyLight)
-const fillLight = new THREE.DirectionalLight(0x74b9ff, 1.5)
+const fillLight = new THREE.DirectionalLight(0x74b9ff, 1.2)
 fillLight.position.set(-6, 3, 3)
 scene.add(fillLight)
-const rimLight = new THREE.SpotLight(0x60a5fa, 3.8, 15, Math.PI / 4, 0.3)
+const rimLight = new THREE.SpotLight(0x60a5fa, 3.2, 15, Math.PI / 4, 0.3)
 rimLight.position.set(-3, 4, -5)
 scene.add(rimLight)
-const accentLight = new THREE.PointLight(0xffa726, 2.4, 10)
+const accentLight = new THREE.PointLight(0xffa726, 2.2, 10)
 accentLight.position.set(4, 2, 3)
 scene.add(accentLight)
-const topLight = new THREE.PointLight(0xdfe6e9, 1.2, 12)
+const topLight = new THREE.PointLight(0xdfe6e9, 1.1, 12)
 topLight.position.set(0, 8, 0)
 scene.add(topLight)
 const movingLight = new THREE.PointLight(0x60a5fa, 1.8, 12)
@@ -144,60 +146,37 @@ const edges = [
 ]
 edges.forEach(([a, b]) => addBeam(a, b, 0.26))
 
-cubeGroup.rotation.x = -0.25
-cubeGroup.rotation.z = 0.15
+cubeGroup.rotation.x = -0.15 // smaller tilt for flatter look
+cubeGroup.rotation.z = 0.1
 
 /**
- * ✅ Responsive resize — fills ~70% of div
+ * ✅ Responsive resize — fills ~60% of div (no clipping)
  */
 function resizeRenderer() {
   const width = container.clientWidth || window.innerWidth
   const height = container.clientHeight || window.innerHeight
-
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
   renderer.setSize(width, height, false)
   camera.aspect = width / height
   camera.updateProjectionMatrix()
 
-  // --- dynamic FOV-based scale ---
+  // scale down to 60% of div height
   const fovInRad = (camera.fov * Math.PI) / 180
   const viewHeight = 2 * Math.tan(fovInRad / 2) * camera.position.z
   const viewWidth = viewHeight * camera.aspect
-
-  // Cube fills ~75% of visible space (no overflow)
-  const scaleFactor = Math.min(viewWidth, viewHeight) * 0.35
+  const scaleFactor = Math.min(viewWidth, viewHeight) * 0.28 // ~60% fill
   cubeGroup.scale.setScalar(scaleFactor)
-
-  cubeGroup.position.y = 0.2  // small nudge to keep visually centered
+  cubeGroup.position.y = 0 // centered vertically
 }
-
-
 
 window.addEventListener('resize', resizeRenderer)
 resizeRenderer()
 
 /**
- * Animation control — pause when out of view
- */
-const clock = new THREE.Clock()
-let animationId
-let isVisible = true
-
-if ('IntersectionObserver' in window) {
-  const observer = new IntersectionObserver((entries) => {
-    isVisible = entries[0].isIntersecting
-  })
-  observer.observe(container)
-}
-
-/**
  * Animation loop
  */
+const clock = new THREE.Clock()
 function animate() {
-  if (!isVisible) {
-    animationId = requestAnimationFrame(animate)
-    return
-  }
-
   const t = clock.getElapsedTime()
   cubeGroup.rotation.y = t * 0.12
   cubeGroup.rotation.x = Math.sin(t * 0.05) * 0.18
@@ -209,22 +188,6 @@ function animate() {
 
   controls.update()
   renderer.render(scene, camera)
-  animationId = requestAnimationFrame(animate)
+  requestAnimationFrame(animate)
 }
 animate()
-
-/**
- * Cleanup
- */
-window.addEventListener('beforeunload', () => {
-  cancelAnimationFrame(animationId)
-  controls.dispose()
-  renderer.dispose()
-  scene.traverse(obj => {
-    if (obj.geometry) obj.geometry.dispose()
-    if (obj.material) {
-      if (Array.isArray(obj.material)) obj.material.forEach(m => m.dispose())
-      else obj.material.dispose()
-    }
-  })
-})
