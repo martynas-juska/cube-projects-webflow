@@ -39,8 +39,7 @@ renderer.setClearColor(0x000000, 0)
 
 /**
  * Camera
- * - pulled back further for orthographic-like look
- * - narrower FOV for flatter perspective
+ * - orthographic-like view (flatter perspective)
  */
 const camera = new THREE.PerspectiveCamera(45, 1, 0.3, 80)
 camera.position.set(6, 1.5, 14)
@@ -55,7 +54,7 @@ controls.enableZoom = false
 controls.enablePan = false
 controls.minPolarAngle = Math.PI / 2.3
 controls.maxPolarAngle = Math.PI / 2.3
-controls.target.set(0, 0.5, 0) // centered target
+controls.target.set(0, 0.5, 0)
 
 /**
  * Lighting setup
@@ -152,11 +151,13 @@ const edges = [
 ]
 edges.forEach(([a, b]) => addBeam(a, b, 0.26))
 
-cubeGroup.rotation.x = -0.12 // slight tilt
+// Balanced tilt for natural presentation
+cubeGroup.rotation.x = -0.1
 cubeGroup.rotation.z = 0.1
 
 /**
  * ✅ Responsive resize — orthographic-like proportion (~55–60% fill)
+ * and lifts cube slightly to prevent bottom clipping
  */
 function resizeRenderer() {
   const width = container.clientWidth || window.innerWidth
@@ -169,9 +170,11 @@ function resizeRenderer() {
   const fovInRad = (camera.fov * Math.PI) / 180
   const viewHeight = 2 * Math.tan(fovInRad / 2) * camera.position.z
   const viewWidth = viewHeight * camera.aspect
-  const scaleFactor = Math.min(viewWidth, viewHeight) * 0.22 // tuned for ~55-60% fill
+  const scaleFactor = Math.min(viewWidth, viewHeight) * 0.22 // ~55–60% fill
   cubeGroup.scale.setScalar(scaleFactor)
-  cubeGroup.position.y = 0 // vertically centered
+
+  // Lift cube slightly up to avoid touching bottom edge
+  cubeGroup.position.y = height * 0.0007 // dynamic vertical offset
 }
 
 window.addEventListener('resize', resizeRenderer)
